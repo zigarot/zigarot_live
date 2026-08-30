@@ -39,9 +39,15 @@ title: Live Stream
 
   .stream-wrap {
     position: relative;
+    /* above body::before/::after CRT overlays (z 9999) */
+    z-index: 10000;
     width: 100%;
     aspect-ratio: 16 / 9;
     min-width: 0;
+    /* border-box so the 1px border sits inside the grid track and the
+       aspect-ratio still resolves against the outer box */
+    box-sizing: border-box;
+    border: 1px solid var(--accent-dim);
     border-radius: 8px;
     overflow: hidden;
     background: #000;
@@ -69,6 +75,20 @@ title: Live Stream
     background: var(--bg);
   }
   .stream-offline[hidden] { display: none; }
+
+  /* ?debug=1 only — error readout for phone testing */
+  .off-debug {
+    margin: 0.5rem 0 0;
+    max-width: 90%;
+    font-family: ui-monospace, monospace;
+    font-size: 0.7rem;
+    line-height: 1.5;
+    color: var(--accent-dim);
+    text-align: left;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .off-debug[hidden] { display: none; }
   .stream-offline img {
     width: 120px;
     max-width: 40%;
@@ -144,8 +164,11 @@ title: Live Stream
   }
 
   .chat-wrap {
+    position: relative;
+    z-index: 10000;
     height: 100%;
     min-height: 0;
+    box-sizing: border-box;
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid var(--accent-dim);
@@ -245,6 +268,7 @@ title: Live Stream
       </div>
 
       <p class="off-sub">The player starts on its own when the stream goes live.</p>
+      <p class="off-debug" id="stream-debug" hidden></p>
     </div>
   </div>
 
@@ -291,8 +315,22 @@ title: Live Stream
   var retryMs = (parseInt(root.dataset.retry, 10) || 15) * 1000;
   var hls     = null;
   var timer   = null;
+  var netRetries = 0;
+
+  // ?debug=1 — surface hls.js errors on the offline card (mobile has no console)
+  var dbgOn  = /[?&]debug/.test(location.search);
+  var dbgEl  = document.getElementById('stream-debug');
+  var dbgLog = [];
+  function dbg(msg) {
+    if (!dbgOn || !dbgEl) return;
+    dbgLog.push(new Date().toTimeString().slice(0, 8) + '  ' + msg);
+    if (dbgLog.length > 10) dbgLog.shift();
+    dbgEl.textContent = dbgLog.join('\n');
+    dbgEl.hidden = false;
+  }
 
   function showOffline() {
+    dbg('-> offline card, retry in ' + (retryMs / 1000) + 's');
     if (hls) { hls.destroy(); hls = null; }
     video.hidden = true;
     badge.hidden = true;
@@ -314,34 +352,81 @@ title: Live Stream
     });
   }
 
+  /* Jump back to the live edge. The server keeps only hlsSegmentCount
+     segments, so a backgrounded phone falls out of the window entirely and
+     the playhead points at fragments that no longer exist. */
+  function resync() {
+    if (!hls) {
+      // native path: reload and seek to the end of what's seekable
+      if (video.seekable.length) video.currentTime = video.seekable.end(0);
+      video.play().catch(function () {});
+      return;
+    }
+    dbg('resync: t=' + video.currentTime.toFixed(1) + ' edge=' +
+        (hls.liveSyncPosition == null ? 'n/a' : hls.liveSyncPosition.toFixed(1)) +
+        ' buffered=' + (video.buffered.length ? (video.buffered.end(video.buffered.length - 1) - video.currentTime).toFixed(1) + 's' : '0'));
+    var edge = hls.liveSyncPosition;
+    if (edge != null && video.currentTime < edge - 1) video.currentTime = edge;
+    hls.startLoad();
+    video.play().catch(function () {});
+  }
+
+  function onHlsError(evt, data) {
+    dbg((data.fatal ? 'FATAL ' : 'warn  ') + data.type + ' / ' + data.details +
+        (data.response && data.response.code ? ' http=' + data.response.code : '') +
+        (data.reason ? ' (' + data.reason + ')' : ''));
+    if (!data.fatal) {
+      // stalls arrive non-fatal first; nudge before hls.js escalates
+      if (data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR) resync();
+      return;
+    }
+    if (data.type === Hls.ErrorTypes.MEDIA_ERROR) { hls.recoverMediaError(); return; }
+    if (data.type === Hls.ErrorTypes.NETWORK_ERROR && netRetries < 2) {
+      netRetries++;
+      hls.startLoad();
+      return;
+    }
+    showOffline();
+  }
+
   function start() {
-    // Safari plays HLS natively; no library needed.
+    netRetries = 0;
+
+    /* hls.js FIRST. canPlayType('application/vnd.apple.mpegurl') returns the
+       truthy "maybe" in Chrome while its native demuxer fails on Android and
+       macOS, so native must only be the fallback. Firefox returns "" either
+       way; this is for Chrome/Safari viewers. */
+    if (window.Hls && window.Hls.isSupported()) {
+      if (hls) hls.destroy();
+      hls = new Hls({ lowLatencyMode: true, maxLiveSyncPlaybackRate: 1.5 });
+      hls.loadSource(url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, showLive);
+      hls.on(Hls.Events.FRAG_BUFFERED, function () { netRetries = 0; });
+      hls.on(Hls.Events.ERROR, onHlsError);
+      return;
+    }
+
     if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      if (hls) { hls.destroy(); hls = null; }
       video.src = url;
       video.addEventListener('error', showOffline, { once: true });
       showLive();
       return;
     }
 
-    if (!window.Hls || !window.Hls.isSupported()) { showOffline(); return; }
-
-    if (hls) hls.destroy();
-    hls = new Hls({ lowLatencyMode: true });
-    hls.loadSource(url);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, showLive);
-    hls.on(Hls.Events.ERROR, function (evt, data) {
-      if (!data.fatal) return;
-      if (data.type === Hls.ErrorTypes.MEDIA_ERROR) { hls.recoverMediaError(); return; }
-      // Network-fatal covers both "never started" and "stream just ended".
-      showOffline();
-    });
+    showOffline();
   }
 
-  // Stop polling while the tab is hidden; re-check the moment it comes back.
+  /* Stop polling while hidden. On return the player may be VISIBLE but dead —
+     the old check only re-probed when the offline card was up, which is why a
+     backgrounded phone stayed grey until a manual refresh. */
   document.addEventListener('visibilitychange', function () {
-    if (document.hidden) { clearTimeout(timer); }
-    else if (video.hidden) { check(); }
+    if (document.hidden) { clearTimeout(timer); return; }
+    if (video.hidden) { check(); return; }
+    window.ZigStream.isLive(url).then(function (live) {
+      live ? resync() : showOffline();
+    });
   });
 
   check();
