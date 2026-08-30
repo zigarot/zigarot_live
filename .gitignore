@@ -1,3 +1,13 @@
 node_modules
 _site
 package-lock.json
+
+# Local secrets for `wrangler pages dev` - never commit these
+.dev.vars*
+!.dev.vars.example
+.env*
+.wrangler
+
+# Scratch: local backups and files staged for deletion
+_bak/
+_to_delete/

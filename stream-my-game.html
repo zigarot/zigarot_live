@@ -1,0 +1,203 @@
+---
+layout: layout_base.html
+containerClass: container-wide
+title: Stream My Game
+---
+
+<section class="form-blurb">
+  <p>
+    Looking for coverage for your game? Fill out this form and I'll get back to you if it's a fit. Genres I typically stream: [puzzle, automation, action, horror, immersive sim, strategy].
+  </p>
+  <p>
+    Generally, I will stream a game once for at least 3 hours. If the game is engaging, I will
+    create shortform content and might continue to stream it in later sessions. If the game is not for me,
+    I will let you know within 48hrs. If I know someone who will fit the game better, I will suggest the game to them, and them to you.
+  </p>
+  <p class="form-blurb-aside">
+    Coverage like this is free, and reliant on my schedule. If you are happy to pay for a stream (which I will prioritise if the game is suitable),
+    there is an option to indicate this at the end of the form. My rates are available on my <a href="/media-kit">media kit</a>.
+  </p>
+</section>
+
+<form class="req-form" id="req-form" method="POST" action="/api/stream-request">
+
+  <div class="req-hp" aria-hidden="true">
+    <label for="website">Leave this field empty</label>
+    <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+  </div>
+
+  <fieldset class="req-fieldset">
+    <legend class="req-legend">Essential Info</legend>
+
+    <label class="req-label" for="game_title">Game title<span class="req-req">*</span></label>
+    <input class="req-input" type="text" id="game_title" name="game_title" maxlength="200" required>
+
+    <label class="req-label" for="dev_name">Your name or company<span class="req-req">*</span></label>
+    <input class="req-input" type="text" id="dev_name" name="dev_name" maxlength="200" required>
+
+    <label class="req-label" for="contact_email">Contact email<span class="req-req">*</span></label>
+    <input class="req-input" type="email" id="contact_email" name="contact_email" maxlength="254" required>
+
+    <label class="req-label" for="game_link">Store page or game info link</label>
+    <input class="req-input" type="url" id="game_link" name="game_link" maxlength="500" placeholder="Public Facing info URL">
+
+    <label class="req-label" for="presskit_link">Press Kit / Assets</label>
+    <input class="req-input" type="url" id="presskit_link" name="presskit_link" maxlength="500" placeholder="URL for Google Drive/Press Page etc.">
+
+    <label class="req-label" for="game_description">Tell me about your game! <span class="req-req">*</span></label>
+    <textarea class="req-textarea" id="game_description" name="game_description" rows="4" maxlength="5000" required placeholder="Your games hook! Tell me why you love your game! What's it do, how does it feel? Why do I want to cover your epic game?"></textarea>
+  </fieldset>
+
+  <fieldset class="req-fieldset">
+    <legend class="req-legend">Optional Info</legend>
+    <p class="req-hint">The Platform the game will be available for (if known)</p>
+
+    <div class="req-check-grid">
+      <label class="req-check"><input type="checkbox" name="platforms" value="PC (Steam)"> PC (Steam)</label>
+      <label class="req-check"><input type="checkbox" name="platforms" value="PC (other)" id="plat-pc-other"> PC (other)</label>
+      <label class="req-check"><input type="checkbox" name="platforms" value="Switch"> Nintendo Switch (1 or 2)</label>
+      <label class="req-check"><input type="checkbox" name="platforms" value="Xbox"> Xbox</label>
+      <label class="req-check"><input type="checkbox" name="platforms" value="PlayStation"> PlayStation</label>
+      <label class="req-check"><input type="checkbox" name="platforms" value="Android"> Mobile</label>
+      <label class="req-check"><input type="checkbox" name="platforms" value="Meta (VR)"> Meta (VR)</label>
+      <label class="req-check"><input type="checkbox" name="platforms" value="Other" id="plat-other"> Other</label>
+    </div>
+
+    <div class="req-conditional" id="plat-pc-other-wrap" hidden>
+      <label class="req-label" for="platform_pc_other">Which non-steam storefronts/Launchers can players see your game?</label>
+      <input class="req-input" type="text" id="platform_pc_other" name="platform_pc_other" maxlength="300">
+    </div>
+
+    <div class="req-conditional" id="plat-other-wrap" hidden>
+      <label class="req-label" for="platform_other">Which other platform will the game be on?</label>
+      <input class="req-input" type="text" id="platform_other" name="platform_other" maxlength="300">
+    </div>
+
+    <label class="req-label" for="dev_country">Where is this game based primarily?</label>
+    <select class="req-select" id="dev_country" name="dev_country">
+      <option value="">Select a country</option>
+      {% for country in countries.pinned %}<option value="{{ country }}">{{ country }}</option>
+      {% endfor %}<option value="" disabled>──────────</option>
+      {% for country in countries.rest %}<option value="{{ country }}">{{ country }}</option>
+      {% endfor %}</select>
+
+    <div class="req-conditional" id="qld-wrap" hidden>
+      <span class="req-label">Do you have staff local to Queensland who would be interested in showcasing your game locally?</span>
+      <div class="req-radio-row">
+        <label class="req-check"><input type="radio" name="qld_local" value="No" checked> No</label>
+        <label class="req-check"><input type="radio" name="qld_local" value="Yes" id="qld-yes"> Yes</label>
+      </div>
+
+      <div class="req-conditional" id="qld-collab-wrap" hidden>
+        <label class="req-label" for="qld_collab">What kind of collaboration would you suggest?</label>
+        <textarea class="req-textarea" id="qld_collab" name="qld_collab" rows="3" maxlength="2000" placeholder="Local showcase, expo booth, meetup demo, on-site co-stream..."></textarea>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="req-fieldset">
+    <legend class="req-legend">Coverage</legend>
+
+    <span class="req-label">What would you like from me?<span class="req-req">*</span></span>
+    <div class="req-check-grid">
+      <label class="req-check"><input type="checkbox" name="coverage" value="Stream" id="cov-stream"> Stream</label>
+      <label class="req-check"><input type="checkbox" name="coverage" value="Review" id="cov-review"> Review</label>
+      <label class="req-check"><input type="checkbox" name="coverage" value="Other" id="cov-other"> Something else</label>
+    </div>
+
+    <div class="req-conditional" id="cov-other-wrap" hidden>
+      <label class="req-label" for="coverage_other">What did you have in mind?<span class="req-req">*</span></label>
+      <textarea class="req-textarea" id="coverage_other" name="coverage_other" rows="4" maxlength="2000" data-required-when-shown placeholder="Highlight some unique mechanics? Organise an event? Interviews?"></textarea>
+    </div>
+
+    <span class="req-label">Do you have a release date? (includes early access or demo)</span>
+    <div class="req-radio-row">
+      <label class="req-check"><input type="radio" name="release" value="No" checked> No</label>
+      <label class="req-check"><input type="radio" name="release" value="Yes" id="release-yes"> Yes</label>
+    </div>
+    <div class="req-conditional" id="release-wrap" hidden>
+      <label class="req-label" for="release_date">Release date (UTC)</label>
+      <div class="req-datetime-row">
+        <input class="req-input req-input-narrow" type="datetime-local" id="release_date" name="release_date" data-required-when-shown>
+      </div>
+      <p class="req-tz-preview" id="release-preview" aria-live="polite"></p>
+      <input type="hidden" id="release_utc" name="release_utc">
+    </div>
+
+    <span class="req-label">Is there an embargo?</span>
+    <div class="req-radio-row">
+      <label class="req-check"><input type="radio" name="embargo" value="No" checked> No</label>
+      <label class="req-check"><input type="radio" name="embargo" value="Yes" id="embargo-yes"> Yes</label>
+    </div>
+    <div class="req-conditional" id="embargo-wrap" hidden>
+      <label class="req-label" for="embargo_date">Embargo lifts (UTC)</label>
+      <div class="req-datetime-row">
+        <input class="req-input req-input-narrow" type="datetime-local" id="embargo_date" name="embargo_date" data-required-when-shown>
+      </div>
+      <p class="req-tz-preview" id="embargo-preview" aria-live="polite"></p>
+      <input type="hidden" id="embargo_utc" name="embargo_utc">
+    </div>
+  </fieldset>
+
+  <fieldset class="req-fieldset" id="safety-fieldset" hidden>
+    <legend class="req-legend">Stream safety</legend>
+    <p class="req-hint">
+      These options allow me to make informed decisions about streaming options and tags.
+    </p>
+
+    <span class="req-label">Does the game feature any of the following:</span>
+    <div class="req-check-grid">
+      <label class="req-check"><input type="checkbox" name="content_warnings" value="Licensed Music"> Licensed Music</label>
+      <label class="req-check"><input type="checkbox" name="content_warnings" value="Graphic violence"> Graphic violence</label>
+      <label class="req-check"><input type="checkbox" name="content_warnings" value="Sexual themes"> Emphasised sexual themes</label>
+      <label class="req-check"><input type="checkbox" name="content_warnings" value="Heavy topics"> Heavy topics</label>
+      <label class="req-check"><input type="checkbox" name="content_warnings" value="Gambling"> Gambling</label>
+      <label class="req-check"><input type="checkbox" name="content_warnings" value="Strong language"> Strong language</label>
+      <label class="req-check"><input type="checkbox" name="content_warnings" value="Horror / jump scares"> Horror / jump scares</label>
+      <label class="req-check"><input type="checkbox" name="content_warnings" value="Flashing lights"> Flashing lights</label>
+    </div>
+  </fieldset>
+
+  <fieldset class="req-fieldset">
+    <legend class="req-legend">Logistics</legend>
+
+    <label class="req-check req-check-block"><input type="checkbox" name="optional_extras" value="Game key included" id="key-included"> Game Key assigned</label>
+    <div class="req-conditional" id="key-wrap" hidden>
+      <label class="req-label" for="game_key">Game key</label>
+      <input class="req-input" type="text" id="game_key" name="game_key" maxlength="200" autocomplete="off" spellcheck="false" data-required-when-shown placeholder="KEY or redemption instructions">
+      <p class="req-hint">
+        This https form terminates to my private email - but you may choose to advise above how you would prefer to provide the key, such as via reply email once I have confirmed I will cover the game
+      </p>
+    </div>
+
+    <label class="req-check req-check-block"><input type="checkbox" name="optional_extras" value="Wants to sponsor" id="sponsor"> I wish to sponsor content</label>
+    <div class="req-conditional" id="sponsor-wrap" hidden>
+      <details class="req-details">
+        <summary>What sponsored coverage involves</summary>
+        <p>
+          Paid coverage is prioritised in my schedule if the game is a fit. Rates, deliverables,
+          audience stats and terms are all on the
+          <a href="/media-kit" target="_blank" rel="noopener">media kit</a> (opens in a new tab).
+        </p>
+      </details>
+      <label class="req-label" for="sponsor_details">What kind of sponsored opportunity are you offering?<span class="req-req">*</span></label>
+      <textarea class="req-textarea" id="sponsor_details" name="sponsor_details" rows="3" maxlength="2000" data-required-when-shown placeholder="Budget range, deliverables you want (stream hours, shortform, socials), timing, and anything the campaign has to hit."></textarea>
+    </div>
+
+    <label class="req-label" for="other_info">Any other information you would like me to know?</label>
+    <textarea class="req-textarea" id="other_info" name="other_info" rows="3" maxlength="5000"></textarea>
+
+    <label class="req-label" for="referral">Optional: How did you hear about me?</label>
+    <input class="req-input" type="text" id="referral" name="referral" maxlength="300">
+  </fieldset>
+
+  <div class="req-submit-row">
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAAEdx59MzKxSe6IqM" data-theme="dark"></div>
+    <button class="req-submit" type="submit">Send request</button>
+  </div>
+
+  <p class="req-status" id="req-status" role="status" aria-live="polite"></p>
+</form>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="/form.js"></script>

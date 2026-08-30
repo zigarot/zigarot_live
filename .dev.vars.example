@@ -1,0 +1,13 @@
+# Copy to .dev.vars and fill in. .dev.vars is gitignored.
+# Used only by `wrangler pages dev` (npm run preview).
+# Production values: Cloudflare Pages > Settings > Variables and secrets.
+
+TURNSTILE_SECRET_KEY="your-turnstile-secret-key"
+RESEND_API_KEY="your-resend-api-key"
+MAIL_TO="your-inbox@example.com"
+MAIL_FROM="Zigarot.live Forms <forms@zigarot.live>"
+
+# Turnstile test keys - must be used as a matched pair. Swap the sitekey in
+# stream-my-game.html to match. Production keys reject dummy tokens.
+#   sitekey 1x00000000000000000000AA  secret 1x0000000000000000000000000000000AA  always passes
+#   sitekey 2x00000000000000000000AB  secret 2x0000000000000000000000000000000AA  always fails

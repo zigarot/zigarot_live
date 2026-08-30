@@ -1,0 +1,350 @@
+---
+layout: layout_base.html
+title: Live Stream
+---
+
+<style>
+  /* This page opts out of the site's 600px column entirely.
+
+     margin-inline is the load-bearing line, not max-width. body is a column
+     flexbox and .container ships `margin: 0 auto`; auto margins on the cross
+     axis suppress `align-self: stretch`, so the element shrink-wraps its
+     content and centres instead of filling the row. Removing the cap alone
+     does nothing because it was never trying to be wide. */
+  .container {
+    max-width: none !important;
+    margin-inline: 0 !important;
+    align-self: stretch;
+    padding: 0 1.5rem;
+  }
+
+  /* The VIDEO owns the geometry: always 16:9, width-driven, height follows.
+     The chat stretches to match whatever height that lands on.
+
+     Deliberately NOT coupled to 100vh. An earlier version derived max-width
+     from viewport height so the player would always fit on screen; that made
+     the whole layout collapse whenever the window was short (devtools open,
+     for one). Width is the stable dimension — let the page scroll instead. */
+  .stream-layout {
+    --chat-w: clamp(300px, 18vw, 420px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--chat-w);
+    gap: 1rem;
+    align-items: stretch;
+    margin: 0 auto 2rem;
+    /* Fill whatever the screen gives, but stop once the video hits 1080p.
+       Beyond that you are just upscaling a 1920-wide source. */
+    max-width: calc(1920px + var(--chat-w) + 1rem);
+  }
+
+  .stream-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    min-width: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+  }
+  .stream-wrap video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+    background: #000;
+  }
+  .stream-wrap video[hidden] { display: none; }
+
+  /* Offline card, shown whenever the MediaMTX playlist 404s */
+  .stream-offline {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--bg);
+  }
+  .stream-offline[hidden] { display: none; }
+  .stream-offline img {
+    width: 120px;
+    max-width: 40%;
+    opacity: 0.55;
+  }
+  .stream-offline .off-title {
+    font-family: var(--font-title);
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 1.1rem;
+  }
+  .stream-offline .off-sub {
+    color: var(--grey-mid);
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  .off-schedule[hidden] { display: none; }
+  .off-next {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-title);
+    color: var(--text);
+    font-size: 1.05rem;
+  }
+  .off-list {
+    list-style: none;
+    margin: 0 0 0.6rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .off-list li {
+    color: var(--grey-light);
+    font-size: 0.88rem;
+  }
+  .off-list li.is-next {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .off-tz {
+    margin: 0 0 0.75rem;
+    color: var(--grey-mid);
+    font-size: 0.72rem;
+  }
+
+  .live-badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    font-family: var(--font-links);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+  .live-badge[hidden] { display: none; }
+  .live-badge::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #e2003c;
+  }
+
+  .chat-wrap {
+    height: 100%;
+    min-height: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--accent-dim);
+    background: var(--grey-dark);
+  }
+  .chat-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
+
+  .chat-setup {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .chat-setup p { margin: 0; color: var(--grey-light); font-size: 0.85rem; line-height: 1.5; }
+  .chat-setup a { color: var(--accent); }
+
+  /* Chat sits beside the video only when the screen is BOTH landscape and
+     wide enough. Stack when either test fails:
+
+       max-width: 1200px  — a phone in landscape passes the orientation test
+                            but has no room for a chat column; this catches it.
+       orientation: portrait — a rotated 1440x2560 monitor is wide enough on
+                            paper, but chat belongs underneath on a tall screen.
+
+     Width alone can't express the second case; orientation alone can't
+     express the first. Both conditions are needed.
+
+     Note this is a breakpoint, not a `min-width` on the video — a hard
+     min-width would force horizontal scrolling on every phone. */
+  @media (max-width: 1200px), (orientation: portrait) {
+    .stream-layout {
+      grid-template-columns: 1fr;
+      max-width: 1920px;
+    }
+    /* dvh tracks the *visible* viewport; iOS Safari's vh is the tall-viewport
+       measurement (address bar hidden), so plain 70vh overflows the screen
+       while the bar is showing. vh first as the fallback for old browsers. */
+    .chat-wrap {
+      height: 70vh;
+      height: 70dvh;
+      min-height: 400px;
+    }
+  }
+
+  .commands-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.5rem;
+    max-width: 960px;
+    margin: 0 auto 2rem;
+  }
+
+  .cmd {
+    background: var(--grey-dark);
+    border: 1px solid var(--accent-dim);
+    border-radius: 6px;
+    padding: 0.6rem 0.9rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+  }
+  .cmd-name { font-family: monospace; color: var(--accent); font-size: 0.95rem; white-space: nowrap; }
+  .cmd-desc { color: var(--grey-light); font-size: 0.85rem; }
+
+  h2 {
+    font-family: var(--font-title);
+    color: var(--accent);
+    text-align: center;
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>
+
+<div class="stream-layout">
+  <div class="stream-wrap"
+       id="stream-player"
+       data-hls="{{ stream.video.hlsUrl }}"
+       data-retry="{{ stream.video.retrySeconds }}">
+
+    <span class="live-badge" id="live-badge" hidden>LIVE</span>
+
+    <video id="stream-video" controls muted playsinline hidden></video>
+
+    <div class="stream-offline" id="stream-offline">
+      <img src="{{ stream.video.offlineLogo }}" alt="" aria-hidden="true">
+      <span class="off-title">Offline</span>
+
+      <div class="off-schedule" id="stream-schedule" hidden>
+        <p class="off-next" data-role="countdown"></p>
+        <ul class="off-list" data-role="list"></ul>
+        <p class="off-tz" data-role="tz"></p>
+      </div>
+
+      <p class="off-sub">The player starts on its own when the stream goes live.</p>
+    </div>
+  </div>
+
+  <div class="chat-wrap">
+    {% if stream.chat.roomId != "" %}
+      <iframe
+        src="{{ stream.chat.embedBase }}/index.html?room={{ stream.chat.roomId }}&amp;ws={{ stream.chat.wsUrl | url_encode }}"
+        title="Live chat"
+        allow="clipboard-write">
+      </iframe>
+    {% else %}
+      <div class="chat-setup">
+        <p><strong>Chat not configured yet.</strong></p>
+        <p>Create a room at <a href="https://chat.socialstream.ninja/">Ninja&nbsp;Chatter</a>, then set <code>chat.roomId</code> in <code>_data/stream.js</code>.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<h2>Commands</h2>
+
+<div class="commands-grid">
+  {% for c in stream.commands %}
+  <div class="cmd"><span class="cmd-name">{{ c.name }}</span><span class="cmd-desc">{{ c.desc }}</span></div>
+  {% endfor %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.7.1/dist/hls.min.js"></script>
+<script type="application/json" id="stream-schedule-config">
+  {{ stream.schedule | json }}
+</script>
+<script src="/stream-live.js"></script>
+<script src="/stream-schedule.js" defer></script>
+{% raw %}
+<script>
+(function () {
+  var root    = document.getElementById('stream-player');
+  var video   = document.getElementById('stream-video');
+  var offline = document.getElementById('stream-offline');
+  var badge   = document.getElementById('live-badge');
+  if (!root || !video || !window.ZigStream) return;
+
+  var url     = root.dataset.hls;
+  var retryMs = (parseInt(root.dataset.retry, 10) || 15) * 1000;
+  var hls     = null;
+  var timer   = null;
+
+  function showOffline() {
+    if (hls) { hls.destroy(); hls = null; }
+    video.hidden = true;
+    badge.hidden = true;
+    offline.hidden = false;
+    clearTimeout(timer);
+    timer = setTimeout(check, retryMs);
+  }
+
+  function showLive() {
+    offline.hidden = true;
+    video.hidden = false;
+    badge.hidden = false;
+    video.play().catch(function () { /* autoplay may be blocked; controls are visible */ });
+  }
+
+  function check() {
+    window.ZigStream.isLive(url).then(function (live) {
+      live ? start() : showOffline();
+    });
+  }
+
+  function start() {
+    // Safari plays HLS natively; no library needed.
+    if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = url;
+      video.addEventListener('error', showOffline, { once: true });
+      showLive();
+      return;
+    }
+
+    if (!window.Hls || !window.Hls.isSupported()) { showOffline(); return; }
+
+    if (hls) hls.destroy();
+    hls = new Hls({ lowLatencyMode: true });
+    hls.loadSource(url);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, showLive);
+    hls.on(Hls.Events.ERROR, function (evt, data) {
+      if (!data.fatal) return;
+      if (data.type === Hls.ErrorTypes.MEDIA_ERROR) { hls.recoverMediaError(); return; }
+      // Network-fatal covers both "never started" and "stream just ended".
+      showOffline();
+    });
+  }
+
+  // Stop polling while the tab is hidden; re-check the moment it comes back.
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { clearTimeout(timer); }
+    else if (video.hidden) { check(); }
+  });
+
+  check();
+})();
+</script>
+{% endraw %}

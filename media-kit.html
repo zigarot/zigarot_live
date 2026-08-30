@@ -1,0 +1,114 @@
+---
+layout: layout_base.html
+containerClass: container-wide
+title: Media Kit
+---
+
+<section class="mk-intro">
+  <div class="mk-identity">
+    <img class="mk-portrait" src="/img/zigarot-photo.jpg" alt="Kymothy &quot;Zigarot&quot; Kennedy">
+    <div class="mk-identity-text">
+      <h2 class="mk-name">Kymothy &ldquo;Zigarot&rdquo; Kennedy</h2>
+      <p class="mk-role">Indie Gamer &middot; Engineer &middot; Voice Actor</p>
+      <p class="mk-location">Ipswich / Tulmur, Queensland, Australia</p>
+    </div>
+  </div>
+
+  <p class="mk-bio">
+    I stream and create variety gaming videos using my dry humour, positive and engaging perspective.
+    I have a love for indie games, especially local ANZ devs! I am open to working with anyone I believe in. 
+    I lead the L.A.M.E stream team, host panels at conventions, and love to showcase creativity across all of humanity!
+  </p>
+
+  <div class="mk-actions">
+    <a class="mk-btn mk-btn-primary" href="/stream-my-game">Request a stream or review</a>
+    <a class="mk-btn" href="/rates.csv" download>Download rate card (CSV)</a>
+    <button class="mk-btn" type="button" onclick="window.print()">Save as PDF</button>
+  </div>
+</section>
+
+<section class="mk-section">
+  <h3 class="mk-heading">Audience</h3>
+  <p class="mk-asof">Stats as of {{ stats.asOf }}</p>
+
+  <div class="mk-stat-grid">
+    {% for stat in stats.headline %}
+    <div class="mk-stat">
+      <span class="mk-stat-value">{{ stat.value }}</span>
+      <span class="mk-stat-label">{{ stat.label }}</span>
+      {% if stat.note %}<span class="mk-stat-note">{{ stat.note }}</span>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="mk-platform-grid">
+    {% for platform in stats.platforms %}
+    <a class="mk-platform pill-{{ platform.brand }}" href="{{ platform.url }}">
+      <span class="mk-platform-head">
+        <i class="fa-brands {{ platform.icon }} fa-fw"></i>
+        <span class="mk-platform-name">{{ platform.name }}</span>
+        <span class="mk-platform-handle">{{ platform.handle }}</span>
+      </span>
+      {% for metric in platform.metrics %}
+      <span class="mk-platform-metric">
+        <strong>{{ metric.value }}</strong> {{ metric.label }}
+      </span>
+      {% endfor %}
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="mk-section">
+  <h3 class="mk-heading">Services &amp; rates</h3>
+
+  <table class="mk-rates">
+    <thead>
+      <tr><th scope="col">Service</th><th scope="col">Rate</th></tr>
+    </thead>
+    <tbody>
+      {% for item in services.items %}
+      <tr>
+        <td class="mk-rate-name">
+          <span class="mk-rate-title">{{ item.name }}</span>
+          <span class="mk-rate-detail">{{ item.detail }}</span>
+        </td>
+        <td class="mk-rate-price">{{ item.rate }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <p class="mk-also">{{ services.alsoAvailable }}</p>
+</section>
+
+<section class="mk-section">
+  <h3 class="mk-heading">Terms</h3>
+  <dl class="mk-terms">
+    {% for term in services.terms %}
+    <dt class="mk-term">{{ term.term }}</dt>
+    <dd class="mk-term-detail">{{ term.detail }}</dd>
+    {% endfor %}
+    <dt class="mk-term">Business details</dt>
+    <dd class="mk-term-detail">ABN {{ services.abn }}. {{ services.gstNote }}</dd>
+  </dl>
+</section>
+
+<section class="mk-section">
+  <h3 class="mk-heading">Programs &amp; partners</h3>
+  <ul class="mk-partners">
+    <li class="mk-partner">Ubisoft Creators Program ANZ &mdash; member</li>
+    <li class="mk-partner">Twitch Partner</li>
+  </ul>
+</section>
+
+<section class="mk-section mk-contact">
+  <h3 class="mk-heading">Get in touch</h3>
+  <p class="mk-contact-line">
+    Got a game you want me to look at? The <a href="/stream-my-game">stream request form</a> will put it on my radar!
+  </p>
+  <p class="mk-contact-line">
+    Sponsorship, events, or something more nuanced?:
+    <a href="mailto:zigarot@zigarot.live">zigarot@zigarot.live</a> &middot; Discord <strong>@zigarot</strong>
+  </p>
+</section>

@@ -1,17 +1,20 @@
 {
   "name": "zigarot_live",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "zigarot.live",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "eleventy",
+    "dev": "eleventy --serve",
+    "preview": "eleventy && wrangler pages dev _site"
   },
   "keywords": [],
-  "author": "",
+  "author": "Kymothy Kennedy",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
     "@11ty/eleventy": "^3.1.6"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
 }

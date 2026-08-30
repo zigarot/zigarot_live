@@ -1,0 +1,16 @@
+---
+permalink: /rates.csv
+eleventyExcludeFromCollections: true
+---
+Section,Item,Rate,Details
+{%- for item in services.items %}
+Service,"{{ item.name | replace: '"', '""' }}","{{ item.rate | replace: '"', '""' }}","{{ item.detail | replace: '"', '""' }}"
+{%- endfor %}
+{%- for term in services.terms %}
+Terms,"{{ term.term | replace: '"', '""' }}","","{{ term.detail | replace: '"', '""' }}"
+{%- endfor %}
+Terms,"Business details","","ABN {{ services.abn }}. {{ services.gstNote | replace: '"', '""' }}"
+Terms,"Also available","","{{ services.alsoAvailable | replace: '"', '""' }}"
+Meta,"Stats as of","","{{ stats.asOf }}"
+Meta,"Contact","","zigarot@zigarot.live"
+Meta,"Rate card","","https://zigarot.live/media-kit"

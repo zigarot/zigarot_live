@@ -3,6 +3,11 @@ layout: layout_base.html
 title: Zigarot
 ---
 
+<a class="live-now" id="live-now" href="/stream" hidden>
+  <span class="live-now-dot" aria-hidden="true"></span>
+  <span class="live-now-text">Live now &mdash; watch &amp; chat</span>
+</a>
+
 <div class="hero">
   <div class="avatar-stack">
     <img class="avatar-photo" src="/img/zigarot-photo.jpg" alt="Zigarot">
@@ -19,7 +24,11 @@ title: Zigarot
   <span class="pill-icon"><i class="fa-brands fa-bluesky fa-fw"></i></span>
   <span class="pill-label">BLUESKY</span>
 </a>
-<a class="pill instagram" href="https://www.instagram.com/thatzigarot">
+<a class="pill mastodon" rel="me" href="https://peoplemaking.games/@zigarot">
+  <span class="pill-icon"><i class="fa-brands fa-mastodon fa-fw"></i></span>
+  <span class="pill-label">MASTODON</span>
+</a>
+<a class="pill instagram" href="https://www.instagram.com/zigarot.live">
   <span class="pill-icon"><i class="fa-brands fa-instagram fa-fw"></i></span>
   <span class="pill-label">INSTAGRAM</span>
 </a>
@@ -31,42 +40,146 @@ title: Zigarot
   <span class="pill-icon"><i class="fa-brands fa-x-twitter fa-fw"></i></span>
   <span class="pill-label">TWITTER</span>
 </a>
-<a class="pill tiktok" href="https://www.tiktok.com/@thatzigarot">
+<a class="pill tiktok" href="https://www.tiktok.com/@zigarot.live">
   <span class="pill-icon"><i class="fa-brands fa-tiktok fa-fw"></i></span>
   <span class="pill-label">TIKTOK</span>
 </a>
-<!-- <a class="pill kick" href="https://www.kick.com/zigarot">
-  <span class="pill-icon"><i class="fa-brands fa-kick fa-fw"></i></span>
+<a class="pill kick" href="https://www.kick.com/zigarot">
+  <span class="pill-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1892 2128" role="img" aria-label="Kick"><g transform="translate(0,2128) scale(0.1,-0.1)" fill="currentColor"><path d="M0 10640 l0 -10640 3545 0 3545 0 0 2365 0 2365 1183 -2 1182 -3 3 -1183 2 -1182 1180 0 1180 0 0 -1180 0 -1180 3545 0 3545 0 0 3545 0 3545 -1180 0 -1180 0 0 1185 0 1185 -1185 0 -1185 0 0 1180 0 1180 1185 0 1185 0 0 1180 0 1180 1180 0 1180 0 0 3550 0 3550 -3545 0 -3545 0 0 -1185 0 -1185 -1180 0 -1180 0 0 -1180 0 -1180 -1185 0 -1185 0 0 2365 0 2365 -3545 0 -3545 0 0 -10640z"/></g></svg></span>
   <span class="pill-label">KICK</span>
 </a>
 <a class="pill velora" href="https://www.velora.tv/zigarot">
-  <span class="pill-icon"><i class="fa-brands fa-velora fa-fw"></i></span>
+  <span class="pill-icon"><img class="pill-img" src="/img/velora.png" alt=""></span>
   <span class="pill-label">VELORA</span>
-</a> -->
+</a>
 
 </div>
 
-<p class="intro">G'day, Kym here! I'm an Aussie Creator and polymath, obsessed with learning. You'll typically find me
-    making videos about indie games, hosting panels at conventions about streaming, or streaming on the WORLD'S MOST INTERACTIVE TWITCH STREAM*
+<p class="intro">G'day, Kym here! I'm an Aussie Streamer and creator with a love for indie gaming, learning, and sharing. 
+  <br>You'll find most of what I do in the links above and below, and if you're making something, I'd love to hear from you! You can reach me in the links below
 </p>
 
 <div class="main-links">
-  <a class="main-link" href="/stream-controls">
-    <span class="main-link-title"><s>Stream Dashboard</s></span>
-    <span class="main-link-sub">Coming Soon</span>
+  <a class="main-link" id="stream-link" href="/stream">
+    <span class="main-link-title">Live Stream</span>
+    <span class="main-link-sub" data-when="offline">Watch live &amp; join the chat</span>
+    <span class="main-link-sub" data-when="live" hidden>
+      <span class="live-now-dot" aria-hidden="true"></span> Live right now &mdash; come watch
+    </span>
+  </a>
+  <a class="main-link" href="/stream-my-game">
+    <span class="main-link-title">Got a game for me?</span>
+    <span class="main-link-sub">Fill this form out please!</span>
+  </a>
+  <a class="main-link" href="/media-kit">
+    <span class="main-link-title">Media Kit</span>
+    <span class="main-link-sub">Stats, services &amp; rates</span>
   </a>
   <a class="main-link" href="https://discord.zigarot.live">
     <span class="main-link-title">Discord Server</span>
-    <span class="main-link-sub">Hang with our community</span>
-  </a>
-  <a class="main-link" href="/portfolio">
-    <span class="main-link-title"><s>Creator Portfolio</s></span>
-    <span class="main-link-sub">Coming Soon </span>
+    <span class="main-link-sub">Ziglantis - our community</span>
   </a>
   <a class="main-link" href="mailto://zigarot@zigarot.live">
     <span class="main-link-title">Email Inquiry</span>
-    <span class="main-link-sub">I read them all!</span>
+    <span class="main-link-sub">24hr turnaround!</span>
   </a>
   
 </div>
-<p class="intro">* that's still a work in progress. Got suggestions? email above!</p>
+
+<style>
+  .live-now {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: 0 0 1.5rem;
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    background: rgba(97, 242, 29, 0.08);
+    color: var(--accent);
+    font-family: var(--font-title);
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+  .live-now[hidden] { display: none; }
+  .live-now:hover { background: rgba(97, 242, 29, 0.16); }
+  .live-now-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #e2003c;
+    flex: none;
+    animation: live-pulse 1.6s ease-in-out infinite;
+  }
+  /* Live state for the /stream link itself, driven by the same probe. */
+  .main-link.is-live {
+    border-color: var(--accent);
+    background: rgba(97, 242, 29, 0.10);
+  }
+  .main-link.is-live .main-link-title { color: var(--accent); }
+  .main-link-sub[hidden] { display: none; }
+  .main-link-sub[data-when="live"] {
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  @keyframes live-pulse { 50% { opacity: 0.25; } }
+  @media (prefers-reduced-motion: reduce) {
+    .live-now-dot { animation: none; }
+  }
+</style>
+
+<script src="/stream-live.js"></script>
+{% raw %}
+<script>
+(function () {
+  var banner = document.getElementById('live-now');
+  var link   = document.getElementById('stream-link');
+  if (!banner && !link) return;
+{% endraw %}
+  var url = {{ stream.video.hlsUrl | json }};
+  var retryMs = {{ stream.video.bannerPollSeconds }} * 1000;
+{% raw %}
+  if (!window.ZigStream) return;
+
+  var timer = null;
+
+  // One probe drives both the banner and the link's live state.
+  function render(live) {
+    if (banner) banner.hidden = !live;
+    if (!link) return;
+    link.classList.toggle('is-live', live);
+    link.querySelectorAll('.main-link-sub').forEach(function (el) {
+      el.hidden = (el.dataset.when === 'live') !== live;
+    });
+  }
+
+  function check() {
+    window.ZigStream.isLive(url).then(render);
+  }
+
+  // Poll only while the tab is actually visible, so a homepage left open in a
+  // background tab isn't quietly hammering the MediaMTX box all day.
+  function startPolling() {
+    stopPolling();
+    check();
+    timer = setInterval(check, retryMs);
+  }
+  function stopPolling() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    document.hidden ? stopPolling() : startPolling();
+  });
+
+  if (!document.hidden) startPolling(); else check();
+})();
+</script>
+{% endraw %}
