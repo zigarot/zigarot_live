@@ -64,7 +64,8 @@ title: Zigarot
     <span class="main-link-title">Live Stream</span>
     <span class="main-link-sub" data-when="offline">Watch live &amp; join the chat</span>
     <span class="main-link-sub" data-when="live" hidden>
-      <span class="live-now-dot" aria-hidden="true"></span> CURRENTLY LIVE!</span>
+      <span class="live-now-dot" aria-hidden="true"></span> CURRENTLY LIVE!
+    </span>
   </a>
   <a class="main-link" href="/stream-my-game">
     <span class="main-link-title">Got a game for me?</span>
@@ -78,9 +79,9 @@ title: Zigarot
     <span class="main-link-title">Discord Server</span>
     <span class="main-link-sub">Ziglantis - our community</span>
   </a>
-  <a class="main-link" href="mailto://zigarot@zigarot.live">
+  <a class="main-link" href="mailto:zigarot@zigarot.live">
     <span class="main-link-title">Email Inquiry</span>
-    <span class="main-link-sub">&lt; 48hr response time</span>
+    <span class="main-link-sub">&lt;48hr turnaround</span>
   </a>
   
 </div>
@@ -135,17 +136,20 @@ title: Zigarot
 </style>
 
 <script src="/stream-live.js"></script>
+<script type="application/json" id="live-banner-config">
+  {{ stream.video | json }}
+</script>
 {% raw %}
 <script>
 (function () {
   var banner = document.getElementById('live-now');
   var link   = document.getElementById('stream-link');
   if (!banner && !link) return;
-{% endraw %}
-  var url = {{ stream.video.hlsUrl | json }};
-  var retryMs = {{ stream.video.bannerPollSeconds }} * 1000;
-{% raw %}
   if (!window.ZigStream) return;
+
+  var cfg = JSON.parse(document.getElementById('live-banner-config').textContent);
+  var url = cfg.hlsUrl;
+  var retryMs = cfg.bannerPollSeconds * 1000;
 
   var timer = null;
 
@@ -163,8 +167,7 @@ title: Zigarot
     window.ZigStream.isLive(url).then(render);
   }
 
-  // Poll only while the tab is actually visible, so a homepage left open in a
-  // background tab isn't quietly hammering the MediaMTX box all day.
+  // Poll only while the tab is actually visible
   function startPolling() {
     stopPolling();
     check();
