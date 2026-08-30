@@ -122,7 +122,10 @@ title: Zigarot
   }
   .main-link.is-live .main-link-title { color: var(--accent); }
   .main-link-sub[hidden] { display: none; }
-  .main-link-sub[data-when="live"] {
+  /* :not([hidden]) keeps this above the rule above it - both are one class
+     plus one attribute, so without it the later display:flex wins and the
+     live text shows while the hidden attribute is still set. */
+  .main-link-sub[data-when="live"]:not([hidden]) {
     color: var(--accent);
     display: flex;
     align-items: center;
