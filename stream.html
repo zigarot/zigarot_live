@@ -4,13 +4,7 @@ title: Live Stream
 ---
 
 <style>
-  /* This page opts out of the site's 600px column entirely.
-
-     margin-inline is the load-bearing line, not max-width. body is a column
-     flexbox and .container ships `margin: 0 auto`; auto margins on the cross
-     axis suppress `align-self: stretch`, so the element shrink-wraps its
-     content and centres instead of filling the row. Removing the cap alone
-     does nothing because it was never trying to be wide. */
+  /* break standard style to load in stream player and chat */
   .container {
     max-width: none !important;
     margin-inline: 0 !important;
@@ -18,13 +12,20 @@ title: Live Stream
     padding: 0 1.5rem;
   }
 
-  /* The VIDEO owns the geometry: always 16:9, width-driven, height follows.
-     The chat stretches to match whatever height that lands on.
-
-     Deliberately NOT coupled to 100vh. An earlier version derived max-width
-     from viewport height so the player would always fit on screen; that made
-     the whole layout collapse whenever the window was short (devtools open,
-     for one). Width is the stable dimension — let the page scroll instead. */
+  /* top bar: back link + chat pop-out */
+  .stream-topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0 auto 0.75rem;
+    max-width: calc(1920px + var(--chat-w, 420px) + 1rem);
+    /* above body::before/::after CRT overlays (z 9999) */
+    position: relative;
+    z-index: 10000;
+  }
+  /* 16:9 video player up to 1080p + chat */
   .stream-layout {
     --chat-w: clamp(300px, 18vw, 420px);
     display: grid;
@@ -32,20 +33,17 @@ title: Live Stream
     gap: 1rem;
     align-items: stretch;
     margin: 0 auto 2rem;
-    /* Fill whatever the screen gives, but stop once the video hits 1080p.
-       Beyond that you are just upscaling a 1920-wide source. */
     max-width: calc(1920px + var(--chat-w) + 1rem);
   }
-
+  
+    /* place player and chat above the background post processing
+    includes green border on elements*/
   .stream-wrap {
     position: relative;
-    /* above body::before/::after CRT overlays (z 9999) */
-    z-index: 10000;
+    z-index: 100;
     width: 100%;
     aspect-ratio: 16 / 9;
     min-width: 0;
-    /* border-box so the 1px border sits inside the grid track and the
-       aspect-ratio still resolves against the outer box */
     box-sizing: border-box;
     border: 1px solid var(--accent-dim);
     border-radius: 8px;
@@ -61,7 +59,7 @@ title: Live Stream
   }
   .stream-wrap video[hidden] { display: none; }
 
-  /* Offline card, shown whenever the MediaMTX playlist 404s */
+  /* Offline Card*/
   .stream-offline {
     position: absolute;
     inset: 0;
@@ -76,7 +74,7 @@ title: Live Stream
   }
   .stream-offline[hidden] { display: none; }
 
-  /* ?debug=1 only — error readout for phone testing */
+  /* ?debug=1 testing */
   .off-debug {
     margin: 0.5rem 0 0;
     max-width: 90%;
@@ -89,9 +87,13 @@ title: Live Stream
     word-break: break-word;
   }
   .off-debug[hidden] { display: none; }
+  /* Height-constrained. Sizing on width alone overflowed the 16:9 box on a
+     phone (342x192) and the flex column clipped the logo's top. */
   .stream-offline img {
-    width: 120px;
-    max-width: 40%;
+    width: auto;
+    height: 38%;
+    max-width: 45%;
+    object-fit: contain;
     opacity: 0.55;
   }
   .stream-offline .off-title {
@@ -99,28 +101,34 @@ title: Live Stream
     color: var(--accent);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-size: 1.1rem;
-  }
-  .stream-offline .off-sub {
-    color: var(--grey-mid);
-    font-size: 0.8rem;
-    margin: 0;
+    font-size: clamp(0.95rem, 1.6vw, 1.4rem);
   }
 
-  .off-schedule[hidden] { display: none; }
   .off-next {
-    margin: 0 0 0.75rem;
+    margin: 0;
     font-family: var(--font-title);
     color: var(--text);
-    font-size: 1.05rem;
+    font-size: clamp(0.85rem, 1.3vw, 1.05rem);
   }
+  .off-next[hidden] { display: none; }
+
+  /* Schedule lives in the card at every size. Grouping slots by local time
+     took the list from five rows to two, which is what makes it fit: on a
+     390px phone the card is 342x192 and the column now measures ~150px
+     against ~168px of usable height. */
+  .off-schedule { margin: 0; }
+  .off-schedule[hidden] { display: none; }
+  .off-schedule .off-list { margin: 0.35rem 0 0.3rem; }
+  .off-schedule .off-tz { margin: 0; }
+
   .off-list {
     list-style: none;
     margin: 0 0 0.6rem;
     padding: 0;
     display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.3rem 1.5rem;
   }
   .off-list li {
     color: var(--grey-light);
@@ -188,27 +196,16 @@ title: Live Stream
   .chat-setup p { margin: 0; color: var(--grey-light); font-size: 0.85rem; line-height: 1.5; }
   .chat-setup a { color: var(--accent); }
 
-  /* Chat sits beside the video only when the screen is BOTH landscape and
-     wide enough. Stack when either test fails:
-
-       max-width: 1200px  — a phone in landscape passes the orientation test
-                            but has no room for a chat column; this catches it.
-       orientation: portrait — a rotated 1440x2560 monitor is wide enough on
-                            paper, but chat belongs underneath on a tall screen.
-
-     Width alone can't express the second case; orientation alone can't
-     express the first. Both conditions are needed.
-
-     Note this is a breakpoint, not a `min-width` on the video — a hard
-     min-width would force horizontal scrolling on every phone. */
+  /* orientation calculation */
   @media (max-width: 1200px), (orientation: portrait) {
     .stream-layout {
       grid-template-columns: 1fr;
       max-width: 1920px;
     }
-    /* dvh tracks the *visible* viewport; iOS Safari's vh is the tall-viewport
-       measurement (address bar hidden), so plain 70vh overflows the screen
-       while the bar is showing. vh first as the fallback for old browsers. */
+    /* buy back ~30px: smaller mark, drop the timezone caption */
+    .stream-offline { gap: 0.35rem; padding: 0.6rem; }
+    .stream-offline img { height: 26%; }
+    .off-schedule .off-tz { display: none; }
     .chat-wrap {
       height: 70vh;
       height: 70dvh;
@@ -247,6 +244,16 @@ title: Live Stream
   }
 </style>
 
+<div class="stream-topbar">
+  <a class="back-link" href="/">&larr; Back to zigarot.live</a>
+  {% if stream.chat.roomId != "" %}
+    <button type="button" class="chat-popout" id="chat-popout"
+            data-chat-url="{{ stream.chat.embedBase }}/index.html?room={{ stream.chat.roomId }}&amp;ws={{ stream.chat.wsUrl | url_encode }}">
+      Pop out chat &#8599;
+    </button>
+  {% endif %}
+</div>
+
 <div class="stream-layout">
   <div class="stream-wrap"
        id="stream-player"
@@ -260,14 +267,13 @@ title: Live Stream
     <div class="stream-offline" id="stream-offline">
       <img src="{{ stream.video.offlineLogo }}" alt="" aria-hidden="true">
       <span class="off-title">Offline</span>
+      <p class="off-next" data-role="countdown" data-schedule-block hidden></p>
 
-      <div class="off-schedule" id="stream-schedule" hidden>
-        <p class="off-next" data-role="countdown"></p>
+      <div class="off-schedule" data-schedule-block hidden>
         <ul class="off-list" data-role="list"></ul>
         <p class="off-tz" data-role="tz"></p>
       </div>
 
-      <p class="off-sub">The player starts on its own when the stream goes live.</p>
       <p class="off-debug" id="stream-debug" hidden></p>
     </div>
   </div>
@@ -352,12 +358,9 @@ title: Live Stream
     });
   }
 
-  /* Jump back to the live edge. The server keeps only hlsSegmentCount
-     segments, so a backgrounded phone falls out of the window entirely and
-     the playhead points at fragments that no longer exist. */
+  /* keep at live play*/
   function resync() {
     if (!hls) {
-      // native path: reload and seek to the end of what's seekable
       if (video.seekable.length) video.currentTime = video.seekable.end(0);
       video.play().catch(function () {});
       return;
@@ -376,7 +379,6 @@ title: Live Stream
         (data.response && data.response.code ? ' http=' + data.response.code : '') +
         (data.reason ? ' (' + data.reason + ')' : ''));
     if (!data.fatal) {
-      // stalls arrive non-fatal first; nudge before hls.js escalates
       if (data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR) resync();
       return;
     }
@@ -391,11 +393,6 @@ title: Live Stream
 
   function start() {
     netRetries = 0;
-
-    /* hls.js FIRST. canPlayType('application/vnd.apple.mpegurl') returns the
-       truthy "maybe" in Chrome while its native demuxer fails on Android and
-       macOS, so native must only be the fallback. Firefox returns "" either
-       way; this is for Chrome/Safari viewers. */
     if (window.Hls && window.Hls.isSupported()) {
       if (hls) hls.destroy();
       hls = new Hls({ lowLatencyMode: true, maxLiveSyncPlaybackRate: 1.5 });
@@ -418,9 +415,7 @@ title: Live Stream
     showOffline();
   }
 
-  /* Stop polling while hidden. On return the player may be VISIBLE but dead —
-     the old check only re-probed when the offline card was up, which is why a
-     backgrounded phone stayed grey until a manual refresh. */
+  /* Stop polling while hidden.*/
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) { clearTimeout(timer); return; }
     if (video.hidden) { check(); return; }
@@ -430,6 +425,18 @@ title: Live Stream
   });
 
   check();
+})();
+
+/* Chat pop-out. Twitch/Discord OAuth pages send frame-busting headers, so a
+   login started inside the embed dead-ends. Opening the room as its own
+   top-level window lets the OAuth redirect complete normally. */
+(function () {
+  var btn = document.getElementById('chat-popout');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    window.open(btn.dataset.chatUrl, 'ninjachatter',
+                'width=430,height=780,noopener');
+  });
 })();
 </script>
 {% endraw %}

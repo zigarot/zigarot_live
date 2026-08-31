@@ -52,38 +52,61 @@ title: Zigarot
   <span class="pill-icon"><img class="pill-img" src="/img/velora.png" alt=""></span>
   <span class="pill-label">VELORA</span>
 </a>
-
 </div>
 
-<p class="intro">G'day, Kym here! I'm an Aussie Streamer and creator with a love for indie gaming, learning, and sharing. 
-  <br>You'll find most of what I do in the links above and below, and if you're making something, I'd love to hear from you! You can reach me in the links below
+<p class="intro">G'day, Kymothy here! I'm an Aussie streamer and general creative with a love for gaming, coding, art, and just learning in general!
+  <br>You'll find most of what I do in the links here, and if you're making something, I'd love to hear from you!
 </p>
 
 <div class="main-links">
-  <a class="main-link" id="stream-link" href="/stream">
-    <span class="main-link-title">Live Stream</span>
-    <span class="main-link-sub" data-when="offline">Watch live &amp; join the chat</span>
-    <span class="main-link-sub" data-when="live" hidden>
-      <span class="live-now-dot" aria-hidden="true"></span> CURRENTLY LIVE!
-    </span>
-  </a>
-  <a class="main-link" href="/stream-my-game">
-    <span class="main-link-title">Got a game for me?</span>
-    <span class="main-link-sub">Fill this form out please!</span>
-  </a>
-  <a class="main-link" href="/media-kit">
-    <span class="main-link-title">Media Kit</span>
-    <span class="main-link-sub">Stats, services &amp; rates</span>
-  </a>
-  <a class="main-link" href="https://discord.zigarot.live">
-    <span class="main-link-title">Discord Server</span>
-    <span class="main-link-sub">Ziglantis - our community</span>
-  </a>
-  <a class="main-link" href="mailto:zigarot@zigarot.live">
-    <span class="main-link-title">Email Inquiry</span>
-    <span class="main-link-sub">&lt;48hr turnaround</span>
-  </a>
-  
+
+  <section class="link-group">
+    <h2 class="link-group-title">Hang out with me</h2>
+    <a class="main-link" id="stream-link" href="/stream">
+      <span class="main-link-title">Live Stream</span>
+      <span class="main-link-sub" data-when="offline">uncorporate stream and chatroom</span>
+      <span class="main-link-sub" data-when="live" hidden>
+        <span class="live-now-dot" aria-hidden="true"></span> CURRENTLY LIVE!
+      </span>
+    </a>
+    <a class="main-link" href="https://discord.zigarot.live">
+      <span class="main-link-title">Discord Server</span>
+      <span class="main-link-sub">our community hangout</span>
+    </a>
+    <a class="main-link" href="https://covergeek.com/author/zigarot/">
+      <span class="main-link-title">Reviews</span>
+      <span class="main-link-sub">on covergeek.com</span>
+    </a>
+  </section>
+
+  <section class="link-group">
+    <h2 class="link-group-title">Work with me</h2>
+    <a class="main-link" href="/media-kit">
+      <span class="main-link-title">Media Kit</span>
+      <span class="main-link-sub">my professional services</span>
+    </a>
+    <a class="main-link" href="/stream-my-game">
+      <span class="main-link-title">Stream Request</span>
+      <span class="main-link-sub">I love to cover indies</span>
+    </a>
+    <a class="main-link" href="mailto:zigarot@zigarot.live">
+      <span class="main-link-title">Email Inquiry</span>
+      <span class="main-link-sub">&lt; 48hr turnaround</span>
+    </a>
+  </section>
+
+  <section class="link-group">
+    <h2 class="link-group-title">Support me</h2>
+    <a class="main-link" href="https://www.patreon.com/cw/zigarot">
+      <span class="main-link-title">Patreon</span>
+      <span class="main-link-sub">early access to the things I make</span>
+    </a>
+    <a class="main-link" href="https://ko-fi.com/zigarot">
+      <span class="main-link-title">Ko-fi</span>
+      <span class="main-link-sub">early access and/or general donations!</span>
+    </a>
+  </section>
+
 </div>
 
 <style>
@@ -115,16 +138,14 @@ title: Zigarot
     flex: none;
     animation: live-pulse 1.6s ease-in-out infinite;
   }
-  /* Live state for the /stream link itself, driven by the same probe. */
+  /* Live state for the /stream link*/
   .main-link.is-live {
     border-color: var(--accent);
     background: rgba(97, 242, 29, 0.10);
   }
   .main-link.is-live .main-link-title { color: var(--accent); }
   .main-link-sub[hidden] { display: none; }
-  /* :not([hidden]) keeps this above the rule above it - both are one class
-     plus one attribute, so without it the later display:flex wins and the
-     live text shows while the hidden attribute is still set. */
+  /* :not([hidden]) keeps this above the rule above it*/
   .main-link-sub[data-when="live"]:not([hidden]) {
     color: var(--accent);
     display: flex;

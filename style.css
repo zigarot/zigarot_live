@@ -12,6 +12,9 @@
   --purple:    #AE1DF2;
 
 
+  --surface:      #1A1414;
+  --surface-line: #2C2222;
+
   --grey-light: #C9D3CC;
   --grey-mid:   #7A857E;
   --grey-dark:  #333333;
@@ -66,10 +69,60 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
   width: 100%;
   align-items: center;
   padding-bottom: 1rem;
+  gap: 1.9rem;
+}
+
+/* Slab the buttons rest on: sized to the buttons, not the column. The title
+   straddles the top border with a --bg chip behind it, so the border line
+   breaks around it. */
+.link-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 26rem;
+  padding: 1.4rem 0.9rem 1.1rem;
+  background: var(--surface);
+  border: 2px solid var(--accent-dim);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.link-group-title {
+  position: absolute;
+  top: -0.2rem;
+  left: 1.1rem;
+  transform: translateY(-50%);
+  margin: 0;
+  padding: 0;
+  border: none;
+  /* No background chip. The border runs behind the glyphs and is masked by a
+     black stroke painted BEHIND the fill, so the letters keep their weight. */
+  -webkit-text-stroke: 14px var(--bg);
+  paint-order: stroke fill;
+  font-family: var(--font-links);
+  font-size: 1.45rem;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--accent);
+}
+
+/* buttons fill the slab so it is only a padding wider than they are */
+.link-group .main-link {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .main-link {
@@ -863,4 +916,32 @@ footer {
   margin: 0.6rem 0 0;
   font-size: 0.9rem;
   color: var(--grey-light);
+}
+
+/* ---- back link / small pill actions (stream, media-kit, stream-my-game) ---- */
+
+.page-back {
+  margin: 0 0 1.25rem;
+}
+
+.back-link,
+.chat-popout {
+  display: inline-block;
+  font-family: var(--font-links);
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--accent);
+  background: none;
+  border: 1px solid var(--accent-dim);
+  border-radius: 6px;
+  padding: 0.35rem 0.8rem;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.back-link:hover,
+.chat-popout:hover {
+  background: var(--accent-dim);
+  color: var(--bg);
 }

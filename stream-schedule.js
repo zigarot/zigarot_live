@@ -9,9 +9,11 @@
  * it falls.
  */
 (function () {
-  var root = document.getElementById('stream-schedule');
+  /* The countdown sits inside the player's offline card; the full list sits in
+     its own section below. Different parents, so query the document rather
+     than a single root, and reveal by attribute. */
   var cfgEl = document.getElementById('stream-schedule-config');
-  if (!root || !cfgEl) return;
+  if (!cfgEl) return;
 
   var cfg;
   try { cfg = JSON.parse(cfgEl.textContent); } catch (e) { return; }
@@ -19,9 +21,14 @@
   var SLOTS = cfg.slots || [];
   if (!TZ || !SLOTS.length) return;
 
-  var elNext = root.querySelector('[data-role="countdown"]');
-  var elList = root.querySelector('[data-role="list"]');
-  var elTz   = root.querySelector('[data-role="tz"]');
+  /* Each role appears twice — once in the offline card (desktop) and once in
+     the section below the player (stacked). CSS decides which is visible;
+     render into all of them. */
+  function each(nodes, fn) { Array.prototype.forEach.call(nodes, fn); }
+  var elNext = document.querySelectorAll('[data-role="countdown"]');
+  var elList = document.querySelectorAll('[data-role="list"]');
+  var elTz   = document.querySelectorAll('[data-role="tz"]');
+  if (!elNext.length && !elList.length) return;
   var DAY_MS = 86400000;
   var WEEK_MS = 7 * DAY_MS;
   var WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -65,10 +72,27 @@
     return null;
   }
 
-  function fmtLocal(ms) {
-    return new Date(ms).toLocaleString(undefined, {
-      weekday: 'long', hour: 'numeric', minute: '2-digit'
+  function fmtDay(ms) {
+    return new Date(ms).toLocaleString(undefined, { weekday: 'short' });
+  }
+  function fmtTime(ms) {
+    return new Date(ms).toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' });
+  }
+
+  /* Collapse slots that land on the same LOCAL time into one row:
+     "Thu / Fri / Sat — 5:00 pm". Grouping has to happen after conversion, not
+     on the Brisbane config, because a viewer's offset can split one Brisbane
+     time across two local times (and merge two into one). `times` arrives
+     soonest-first, so both the groups and the days inside them stay in
+     next-up order. */
+  function grouped(times) {
+    var order = [], map = {};
+    times.forEach(function (t) {
+      var k = fmtTime(t), d = fmtDay(t);
+      if (!map[k]) { map[k] = { time: k, days: [] }; order.push(k); }
+      if (map[k].days.indexOf(d) === -1) map[k].days.push(d);
     });
+    return order.map(function (k) { return map[k]; });
   }
 
   function countdown(ms) {
@@ -98,28 +122,31 @@
     var times = upcoming();
     if (!times.length) return;
 
-    if (elNext) {
-      elNext.textContent = 'Next stream in ' + countdown(times[0] - Date.now());
-    }
+    var next = 'Next stream in ' + countdown(times[0] - Date.now());
+    each(elNext, function (el) { el.textContent = next; });
 
     // Only touch the DOM when the rendered set actually changes.
     var key = times.join(',');
-    if (elList && key !== lastList) {
+    if (key !== lastList) {
       lastList = key;
-      elList.innerHTML = '';
-      times.forEach(function (t, i) {
-        var li = document.createElement('li');
-        li.textContent = fmtLocal(t);
-        if (i === 0) li.className = 'is-next';
-        elList.appendChild(li);
+      var groups = grouped(times);
+      each(elList, function (ul) {
+        ul.innerHTML = '';
+        groups.forEach(function (g, i) {
+          var li = document.createElement('li');
+          li.textContent = g.days.join(' / ') + ' \u2014 ' + g.time;
+          if (i === 0) li.className = 'is-next';
+          ul.appendChild(li);
+        });
       });
     }
 
-    if (elTz && !elTz.textContent) {
+    each(elTz, function (el) {
+      if (el.textContent) return;
       var zone = '';
       try { zone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
-      elTz.textContent = zone ? 'Shown in your local time (' + zone + ')' : 'Shown in your local time';
-    }
+      el.textContent = zone ? 'Shown in your local time (' + zone + ')' : 'Shown in your local time';
+    });
   }
 
   var timer = null;
@@ -130,6 +157,9 @@
     document.hidden ? stop() : start();
   });
 
-  root.hidden = false;
+  Array.prototype.forEach.call(
+    document.querySelectorAll('[data-schedule-block]'),
+    function (el) { el.hidden = false; }
+  );
   if (!document.hidden) start(); else render();
 })();
