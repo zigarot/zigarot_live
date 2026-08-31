@@ -292,6 +292,29 @@ footer {
   z-index: -1;
   opacity: 0.10;
 }
+
+/* prefers-reduced-motion reads an OS accessibility setting - Windows
+   "Animation effects", macOS/iOS "Reduce motion", Android "Remove
+   animations". Nothing to do with battery; there is no battery media query.
+
+   Hiding the canvas is the whole fix for the matrix: matrix.js checks the
+   computed display before it starts, so the rAF loop never runs. Read once
+   at load, so a mid-session OS change needs a reload.
+
+   Hover transforms collapse to near-zero rather than 0 so the state change
+   still registers as a change. */
+@media (prefers-reduced-motion: reduce) {
+  #matrix {
+    display: none;
+  }
+
+  .avatar-photo,
+  .main-link:hover,
+  .pill:hover,
+  .mk-btn:hover {
+    transition-duration: 0.01ms;
+  }
+}
 /* ---- shared page furniture ---- */
 
 .container-wide {
