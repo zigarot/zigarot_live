@@ -75,7 +75,7 @@ title: Stream My Game
       <input class="req-input" type="text" id="platform_other" name="platform_other" maxlength="300">
     </div>
 
-    <label class="req-label" for="dev_country">Where is this game based primarily?</label>
+    <label class="req-label" for="dev_country">Where is this game development based, primarily?</label>
     <select class="req-select" id="dev_country" name="dev_country">
       <option value="">Select a country</option>
       {% for country in countries.pinned %}<option value="{{ country }}">{{ country }}</option>
@@ -84,7 +84,7 @@ title: Stream My Game
       {% endfor %}</select>
 
     <div class="req-conditional" id="qld-wrap" hidden>
-      <span class="req-label">Do you have staff local to Queensland who would be interested in showcasing your game locally?</span>
+      <span class="req-label">Do you have staff local to Queensland who would be interested in collaborating?</span>
       <div class="req-radio-row">
         <label class="req-check"><input type="radio" name="qld_local" value="No" checked> No</label>
         <label class="req-check"><input type="radio" name="qld_local" value="Yes" id="qld-yes"> Yes</label>

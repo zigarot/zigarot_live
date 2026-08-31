@@ -20,6 +20,14 @@
   --grey-dark:  #333333;
   --text:       #FFFFFF;
 
+  /* Stacking layers. The CRT scanlines and vignette are fixed over the whole
+     viewport; --layer-above-crt lifts long-form UI out from under them. */
+  --layer-crt:       9999;
+  --layer-above-crt: 10000;
+
+  /* --bg at 88%. Flat alpha, no backdrop-filter - blur is the expensive one
+     on mobile, a plain rgba fill costs nothing. */
+  --panel-bg: rgba(15, 10, 10, 0.88);
 }
 
 .avatar-stack {
@@ -234,7 +242,7 @@ body::after {
   width: 100%;
   height: 100%;
   pointer-events: none; 
-  z-index: 9999;
+  z-index: var(--layer-crt);
 
 
   background: repeating-linear-gradient(
@@ -254,7 +262,7 @@ body::before {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 9999;
+  z-index: var(--layer-crt);
 
   background: radial-gradient(
     ellipse at center,
@@ -616,11 +624,22 @@ footer {
   overflow: hidden;
 }
 
+/* The scanline and vignette overlays sit above page content by design, but
+   over a long form they fight the field borders and the text you are typing.
+   Lift the form out from under them; both overlays are pointer-events:none so
+   nothing about interaction changes. */
+.req-form,
+.form-blurb {
+  position: relative;
+  z-index: var(--layer-above-crt);
+}
+
 .req-fieldset {
   border: 2px solid var(--grey-dark);
   border-radius: 4px 16px 4px 16px;
   padding: 1.25rem;
   margin: 0 0 1.5rem;
+  background: var(--panel-bg);
 }
 
 .req-legend {
