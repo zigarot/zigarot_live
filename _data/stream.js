@@ -44,11 +44,11 @@ export default {
   schedule: {
     timeZone: "Australia/Brisbane",
     slots: [
-      { day: 0, hour: 17, minute: 0 },  /* Sun */
-      { day: 1, hour: 17, minute: 0 },  /* Mon */
-      { day: 4, hour: 17, minute: 0 },  /* Thu */
+      { day: 0, hour: 18, minute: 0 },  /* Sun */
+      { day: 1, hour: 18, minute: 0 },  /* Mon */
+      { day: 4, hour: 18, minute: 0 },  /* Thu */
       { day: 5, hour: 18, minute: 0 },  /* Fri */
-      { day: 6, hour: 17, minute: 0 }   /* Sat */
+      { day: 6, hour: 18, minute: 0 }   /* Sat */
     ]
   },
 
