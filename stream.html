@@ -262,7 +262,7 @@ title: Live Stream
 
     <span class="live-badge" id="live-badge" hidden>LIVE</span>
 
-    <video id="stream-video" controls muted playsinline hidden></video>
+    <video id="stream-video" crossorigin="anonymous" controls muted playsinline hidden></video>
 
     <div class="stream-offline" id="stream-offline">
       <img src="{{ stream.video.offlineLogo }}" alt="" aria-hidden="true">
@@ -395,7 +395,7 @@ title: Live Stream
     netRetries = 0;
     if (window.Hls && window.Hls.isSupported()) {
       if (hls) hls.destroy();
-      hls = new Hls({ lowLatencyMode: true, maxLiveSyncPlaybackRate: 1.5 });
+      hls = new Hls({maxLiveSyncPlaybackRate: 1.2, liveDurationInfinity: true });
       hls.loadSource(url);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, showLive);
