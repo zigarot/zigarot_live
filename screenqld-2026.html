@@ -1,0 +1,49 @@
+---
+layout: layout_base.html
+containerClass: container-wide sq-page
+title: Screen Queensland Games Residency Showcase
+permalink: /screenqld-2026/
+---
+
+<p class="page-back"><a class="back-link" href="/">&larr; Back to zigarot.live</a></p>
+
+<section class="sq-hero">
+  <a class="sq-logo-link" href="{{ sqgr.residencyUrl }}" target="_blank" rel="noopener">
+    <img class="sq-logo" src="/img/sqgr-logo.png" alt="Screen Queensland Games Residency" width="1280" height="342">
+  </a>
+  <p class="sq-blurb">
+    We headed into the Screen Queensland Games Residency program in October 2026, to meet some epic games artists.
+    The Games Residency program supports current and aspiring games producers to bring you their epic creations! 
+    Check out their store page and wishlist them! It helps a ton!
+  </p>
+  <div class="mk-actions sq-hero-actions">
+    <a class="mk-btn mk-btn-primary" href="{{ sqgr.residencyUrl }}" target="_blank" rel="noopener">About the Games Residency</a>
+    <a class="mk-btn" href="{{ sqgr.twitchUrl }}" target="_blank" rel="noopener"><i class="fa-brands fa-twitch fa-fw"></i> Watch live on Twitch</a>
+  </div>
+</section>
+
+<section class="mk-section">
+  <h3 class="mk-heading">Tonight's line-up</h3>
+
+  <ol class="sq-grid">
+    {% for game in sqgr.games %}
+    {% if game.url %}{% assign storeUrl = game.url %}{% else %}{% capture storeUrl %}https://store.steampowered.com/app/{{ game.appId }}/{{ sqgr.utm }}{% endcapture %}{% endif %}
+    <li class="sq-card">
+      <a class="sq-capsule-link" href="{{ storeUrl }}" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">
+        {% if game.capsule %}
+        <img class="sq-capsule" src="{{ game.capsule }}" alt="" loading="lazy" width="460" height="215">
+        {% else %}
+        <span class="sq-capsule-placeholder">{{ game.title }}</span>
+        {% endif %}
+      </a>
+      <div class="sq-body">
+        <h4 class="sq-title">{{ game.title }}</h4>
+        <p class="sq-dev">{{ game.dev }}</p>
+        <a class="mk-btn mk-btn-primary sq-btn" href="{{ storeUrl }}" target="_blank" rel="noopener">
+          {% if game.cta %}{{ game.cta }}{% else %}<i class="fa-brands fa-steam fa-fw"></i> Wishlist on Steam{% endif %}
+        </a>
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
