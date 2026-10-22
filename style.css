@@ -207,6 +207,27 @@ display: flex;
   justify-content: center;
 }
 
+/* secondary socials - native details toggle */
+.more-links {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.pill.more {
+  --brand: var(--grey-mid);
+  cursor: pointer;
+  list-style: none;
+}
+
+.pill.more::-webkit-details-marker {
+  display: none;
+}
+
+/* one-way reveal - toggle removed once open */
+.more-links[open] .pill.more {
+  display: none;
+}
+
 .pill.bluesky   { --brand: #0085ff; }
 .pill.twitch    { --brand: #9146ff; }
 .pill.instagram { --brand: #e1306c; }
@@ -1006,7 +1027,10 @@ header:has(+ .sq-page) h1 {
   text-align: center;
 }
 
+/* sq marketing: logo must render unmodified - lift above crt */
 .sq-logo {
+  position: relative;
+  z-index: var(--layer-above-crt);
   width: min(32rem, 88vw);
   height: auto;
   display: block;

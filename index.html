@@ -20,21 +20,30 @@ title: Zigarot
   <span class="pill-icon"><i class="fa-brands fa-twitch fa-fw"></i></span>
   <span class="pill-label">TWITCH</span>
 </a>
+<a class="pill youtube" href="https://www.youtube.com/@zigarotica">
+  <span class="pill-icon"><i class="fa-brands fa-youtube fa-fw"></i></span>
+  <span class="pill-label">YOUTUBE</span>
+</a>
 <a class="pill bluesky" href="https://bsky.app/profile/zigarot.live">
   <span class="pill-icon"><i class="fa-brands fa-bluesky fa-fw"></i></span>
   <span class="pill-label">BLUESKY</span>
-</a>
-<a class="pill mastodon" rel="me" href="https://peoplemaking.games/@zigarot">
-  <span class="pill-icon"><i class="fa-brands fa-mastodon fa-fw"></i></span>
-  <span class="pill-label">MASTODON</span>
 </a>
 <a class="pill instagram" href="https://www.instagram.com/zigarot.live">
   <span class="pill-icon"><i class="fa-brands fa-instagram fa-fw"></i></span>
   <span class="pill-label">INSTAGRAM</span>
 </a>
-<a class="pill youtube" href="https://www.youtube.com/@zigarotica">
-  <span class="pill-icon"><i class="fa-brands fa-youtube fa-fw"></i></span>
-  <span class="pill-label">YOUTUBE</span>
+</div>
+
+<!-- rel="me" must stay in index markup for mastodon verification - closed details is fine -->
+<details class="more-links">
+<summary class="pill more">
+  <span class="pill-icon"><i class="fa-solid fa-plus fa-fw"></i></span>
+  <span class="pill-label">MORE</span>
+</summary>
+<div class="social-pills more-pills">
+<a class="pill mastodon" rel="me" href="https://peoplemaking.games/@zigarot">
+  <span class="pill-icon"><i class="fa-brands fa-mastodon fa-fw"></i></span>
+  <span class="pill-label">MASTODON</span>
 </a>
 <a class="pill xtwitter" href="https://www.x.com/zigarot">
   <span class="pill-icon"><i class="fa-brands fa-x-twitter fa-fw"></i></span>
@@ -53,6 +62,7 @@ title: Zigarot
   <span class="pill-label">VELORA</span>
 </a>
 </div>
+</details>
 
 <p class="intro">G'day, Kymothy here! I'm an Aussie streamer and general creative with a love for gaming, coding, art, and just learning in general!
   <br>You'll find most of what I do in the links here, and if you're making something, I'd love to hear from you!
@@ -70,8 +80,8 @@ title: Zigarot
       </span>
     </a>
     <a class="main-link" href="/screenqld-2026/">
-      <span class="main-link-title">Games Residency Showcase</span>
-      <span class="main-link-sub">Screen Queensland residency games to wishlist</span>
+      <span class="main-link-title">QLD Games!</span>
+      <span class="main-link-sub">Screen Queensland Games Residency 2026</span>
     </a>
     <a class="main-link" href="https://discord.zigarot.live">
       <span class="main-link-title">Discord Server</span>
@@ -162,6 +172,17 @@ title: Zigarot
     .live-now-dot { animation: none; }
   }
 </style>
+
+<script>
+// summary hides on open - move focus to first revealed link
+(function () {
+  var more = document.querySelector('.more-links');
+  if (!more) return;
+  more.addEventListener('toggle', function () {
+    if (more.open) more.querySelector('.more-pills .pill').focus();
+  }, { once: true });
+})();
+</script>
 
 <script src="/stream-live.js"></script>
 <script type="application/json" id="live-banner-config">

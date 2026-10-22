@@ -8,8 +8,8 @@ const utm = "?utm_source=zigarot.live&utm_medium=stream&utm_campaign=sqgr2026";
 const cdn = "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps";
 
 export default {
-  title: "Screen Queensland Games Residency Showcase",
-  twitchUrl: "https://twitch.tv/zigarot",
+  title: "Screen Queensland Games Residency 2026",
+  twitchUrl: "https://www.twitch.tv/videos/2905738491",
   residencyUrl: "https://screenqueensland.com.au/games/games-residency/",
   utm,
   games: [
@@ -32,10 +32,11 @@ export default {
       capsule: `${cdn}/2474770/cd703a3d72e2f6d086a3d227236bc3853fc98d57/library_header.jpg`
     },
     {
-      // no steam page yet - links to dev site. add capsule when assets arrive
+      // no steam page yet - links to charlie's site
       title: "Escape",
       dev: "Charlie Bean",
       url: "https://www.charliebean.au/",
+      capsule: `https://images.squarespace-cdn.com/content/v1/66c4e8f177e44474f0db9943/fe598c28-485c-42c5-aa68-eb461810db86/IMG_4576.png`,
       cta: "Visit the developer"
     },
     {
@@ -49,6 +50,12 @@ export default {
       dev: "Cosmic Black Studios",
       appId: 4470840,
       capsule: `${cdn}/4470840/389a41b1b3d1bee282125abd99030c9aeab457e6/library_header.jpg`
+    },
+    {
+      title: "Stonefall",
+      dev: "Cosmic Black Studios & Vertex Ascent",
+      appId: 5029770,
+      capsule: `${cdn}/5029770/79eb4b99ca33bf3f465e9439e772ad5f734a9363/library_header.jpg`
     }
   ]
 };
